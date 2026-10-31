@@ -1,10 +1,12 @@
-import { Analytics } from '@vercel/analytics/next'
+import { Geist } from 'next/font/google'
+
+const geist = Geist({ subsets: ['latin'] })
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'Luz Clara — Entiende tu recibo de luz',
+  description: 'Entiende tu consumo de luz y la tarifa 1C en Monterrey. Una herramienta gratuita, independiente y privada, sin cuentas ni rastreo.',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -26,11 +28,8 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'light dark',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' },
-  ],
+  colorScheme: 'light',
+  themeColor: '#f8fafc',
 }
 
 export default function RootLayout({
@@ -39,10 +38,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased">
+    <html lang="es-MX" className="bg-background light">
+      <body className={`${geist.className} font-sans antialiased`}>
         {children}
-        {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
   )
