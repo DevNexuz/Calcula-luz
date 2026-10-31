@@ -1,0 +1,24 @@
+'use client'
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
+import { type Appliance, assumedWatts, isCycle } from '@/lib/energy-model'
+
+export function ApplianceForm({ item, period, onChange }: { item: Appliance; period: number; onChange: (item: Appliance) => void }) {
+ const update = (key: keyof Appliance, value: string) => onChange({ ...item, [key]: value })
+ function numeric(key: keyof Appliance, title: string, min: number, max: number, step = '1', optional = false) {
+  return <Field><FieldLabel htmlFor={`appliance-${key}`}>{title}</FieldLabel><Input id={`appliance-${key}`} type="number" inputMode="decimal" min={min} max={max} step={step} required={!optional} value={item[key]} onChange={e => update(key, e.target.value)} placeholder={optional ? 'No sé · usar referencia' : undefined}/></Field>
+ }
+ return <FieldGroup>
+  <Field><FieldLabel htmlFor="appliance-name">¿Dónde lo usas o cómo lo identificas?</FieldLabel><Input id="appliance-name" maxLength={60} required value={item.name} onChange={e => update('name', e.target.value)}/></Field>
+  {numeric('quantity', item.kind === 'lights' ? '¿Cuántos focos iguales usas así?' : '¿Cuántos equipos iguales usas así?', 1, 100)}
+  <p className="helper">Agrupa solo equipos con la misma potencia y hábitos. Puedes agregar otro por separado.</p>
+  {item.kind === 'ac' && <><Field><FieldLabel htmlFor="tons">Capacidad de enfriamiento</FieldLabel><select id="tons" value={item.tons} onChange={e => update('tons', e.target.value)}><option value="">No sé · suponer 1 tonelada</option>{[.5,1,1.5,2,3,4,5].map(n => <option key={n} value={String(n)}>{n} toneladas</option>)}</select></Field><Field><FieldLabel htmlFor="technology">¿Es inverter?</FieldLabel><select id="technology" value={item.technology} onChange={e => update('technology', e.target.value)}><option value="unknown">No sé</option><option value="inverter">Sí, inverter</option><option value="conventional">No, convencional</option></select></Field><p className="helper">Las toneladas no son consumo eléctrico. Sin datos del modelo no asignamos un ahorro automático por ser inverter. Influyen el calor exterior, el aislamiento y la temperatura elegida.</p></>}
+  {item.kind === 'lights' && <Field><FieldLabel htmlFor="technology">¿Qué tipo de focos son?</FieldLabel><select id="technology" value={item.technology} onChange={e => update('technology', e.target.value)}><option value="led">LED · referencia 9 W</option><option value="cfl">Ahorradores · referencia 15 W</option><option value="incandescent">Incandescentes · referencia 60 W</option><option value="unknown">No sé · suponer LED de 9 W</option></select></Field>}
+  {item.kind === 'dryer' && <><Field><FieldLabel htmlFor="technology">¿Con qué calienta la secadora?</FieldLabel><select id="technology" value={item.technology} onChange={e => update('technology', e.target.value)}><option value="electric">Electricidad · referencia 3,000 W</option><option value="gas">Gas · referencia eléctrica 300 W</option><option value="unknown">No sé · suponer eléctrica</option></select></Field><p className="helper">Solo estimamos electricidad, no consumo de gas. Confirma este dato: cambia mucho el resultado.</p></>}
+  {item.kind !== 'fridge' && numeric('hours', isCycle(item.kind) ? '¿Cuántas horas dura cada carga?' : '¿Cuántas horas al día está encendido?', 0, 24, '.25')}
+  {isCycle(item.kind) && numeric('cycles', '¿Cuántas cargas por semana, por equipo?', 0, 100, '.5')}
+  {numeric('days', isCycle(item.kind) ? '¿Durante cuántos días mantuviste este hábito?' : '¿Cuántos días del periodo lo usaste?', 0, period)}
+  <details className="refine" open={item.kind === 'other' ? true : undefined}><summary>Afinar con datos de mi equipo</summary><div className="refine-body">{item.kind === 'fridge' ? <>{numeric('daily', 'Consumo diario en kWh (opcional)', .01, 100, '.01', true)}<p className="helper">Si la etiqueta indica kWh al año, divide entre 365. No uses la potencia del compresor multiplicada por 24: no trabaja continuamente.</p></> : <>{numeric('watts', 'Potencia eléctrica en watts (opcional)', 1, 30000, '1', item.kind !== 'other')}<p className="helper">Usa potencia de entrada eléctrica, no BTU ni capacidad térmica. La potencia de etiqueta tampoco es una medición del consumo real.</p></>}</div></details>
+  <p className="estimate-notice"><strong>Supuesto visible:</strong> {item.kind === 'fridge' ? `${item.daily || '1.44'} kWh al día por refrigerador.` : `${assumedWatts(item).toLocaleString('es-MX')} W por equipo ${item.watts ? 'ingresados por ti' : 'como referencia orientativa'}.`} {item.kind === 'ac' ? 'Simulamos entre 40% y 100% de operación equivalente a plena potencia; el escenario central usa 65%.' : 'Exploramos escenarios de 60% a 140% del cálculo central.'} No son límites garantizados ni un intervalo estadístico.</p>
+ </FieldGroup>
+}
