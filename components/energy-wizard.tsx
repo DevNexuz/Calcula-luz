@@ -68,6 +68,6 @@ export function EnergyWizard() {
   {error && <p role="alert" className="estimate-notice">{error}</p>}
   <div className="diagnosis-actions">{step > 0 && <Button type="button" variant="outline" onClick={back}><ArrowLeft data-icon="inline-start"/> Atrás</Button>}{step < 3 ? <Button type="submit" size="lg">{step === 0 ? 'Empezar mi diagnóstico' : step === 2 && active === items.length-1 ? 'Ver mi diagnóstico' : 'Continuar'}<ArrowRight data-icon="inline-end"/></Button> : <Button type="button" variant="outline" onClick={reset}><RotateCcw data-icon="inline-start"/> Empezar de nuevo</Button>}</div>
   </form></section><p className="diagnosis-footnote"><LockKeyhole size={16}/> No guardamos tus respuestas ni las enviamos a servidores.</p></main></div>
-  <footer className="diagnosis-footer"><span>Hecho para entender, no para complicar.</span><span>Independiente. No afiliado ni avalado por CFE.</span><button onClick={() => {setInfo(true);window.scrollTo({top:0,behavior:'smooth'})}}>Método, límites y privacidad</button></footer>
+  <footer className="diagnosis-footer"><span>Un proyecto de <strong className="text-foreground">MykuzNexuz</strong> · <a href="https://github.com/DevNexuz" target="_blank" rel="noopener noreferrer">Código en GitHub<span className="sr-only"> (se abre en una pestaña nueva)</span></a></span><span>Independiente. No afiliado ni avalado por CFE.</span><button onClick={() => {setInfo(true);window.scrollTo({top:0,behavior:'smooth'})}}>Método, límites y privacidad</button></footer>
  </div>
 }
