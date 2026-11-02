@@ -5,7 +5,7 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Luz Clara — Entiende tu recibo de luz',
+  title: 'Calcula-Luz — Entiende tu recibo con claridad',
   description: 'Descubre qué aparatos pueden explicar tu consumo de luz. Estima hábitos, compara con tu recibo y explora cambios desde tu celular. Gratuito, sin cuentas y con cálculos locales.',
   generator: 'v0.app',
   authors: [{ name: 'MykuzNexuz', url: 'https://github.com/DevNexuz' }],
