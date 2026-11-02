@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { Lightbulb, Printer, ArrowDownRight } from 'lucide-react'
+import { Lightbulb, Printer, ArrowDownRight, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
@@ -17,6 +17,36 @@ export function EnergyResults({ items, days, billed, changes }: { items: Applian
  const led = scenario === 'led' && selected.item.kind === 'lights'
  const validLed = ledWatts !== '' && Number.isFinite(Number(ledWatts)) && Number(ledWatts) >= 1 && Number(ledWatts) <= 200
  const saved = led ? validLed ? selected.central * (1 - Number(ledWatts)/assumedWatts(selected.item)) : 0 : selected.central * reduction/100
+ const saveSummary = () => {
+  const date = new Date()
+  const lines = [
+   'CALCULA-LUZ · Entiende tu recibo con claridad',
+   `Resumen guardado el ${date.toLocaleDateString('es-MX', { dateStyle: 'long' })}`,
+   '',
+   `Periodo: ${days} días`,
+   `Consumo estimado con tus aparatos: ${fmt(total)} kWh (escenarios orientativos: ${fmt(low)}–${fmt(high)} kWh)`,
+   ...(billed !== null ? [`Consumo facturado que ingresaste: ${fmt(billed)} kWh`, `${billed >= total ? 'Diferencia sin explicar' : 'La estimación supera al recibo'}: ${fmt(Math.abs(billed - total))} kWh`] : []),
+   '',
+   'DÓNDE SE ESTÁ USANDO LA ENERGÍA',
+   ...rows.map(r => `- ${r.item.name} × ${r.item.quantity}: ${fmt(r.central)} kWh`),
+   ...(changes.length > 0 ? ['', 'LO QUE CAMBIÓ EN ESTE PERIODO', ...changes.map(c => `- ${c}`)] : []),
+   '',
+   'AVISO',
+   'Cálculo aproximado con fines informativos. No es una auditoría ni un documento de CFE.',
+   'Para aclaraciones sobre tu recibo, consulta directamente a CFE (071 o cfe.mx).',
+   'Herramienta independiente, no avalada por CFE. Un proyecto de MykuzNexuz.',
+  ]
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `calcula-luz-resumen-${date.toISOString().slice(0, 10)}.txt`
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  // Safari and Firefox can cancel the download if the URL is revoked synchronously.
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+ }
  return <div className="results-stack">
   <div className="diagnosis-total"><span>Tu hogar · {days} días · estimación</span><strong>{fmt(total)} <small>kWh</small></strong><p>Escenarios orientativos: {fmt(low)}–{fmt(high)} kWh</p><p>No es una medición ni un rango garantizado.</p></div>
   {billed !== null && <section className="comparison"><h3>¿Cómo se compara con tu recibo?</h3><dl><div><dt>Lo facturado que ingresaste</dt><dd>{fmt(billed)} kWh</dd></div><div><dt>Lo estimado con tus aparatos</dt><dd>{fmt(total)} kWh</dd></div><div><dt>{billed >= total ? 'Diferencia sin explicar' : 'La estimación supera al recibo'}</dt><dd>{fmt(Math.abs(billed-total))} kWh</dd></div></dl><p className="helper">Comparamos el mismo periodo, sin forzar una coincidencia. Una diferencia no demuestra un cobro incorrecto: revisa hábitos, potencias y equipos que falten.</p></section>}
@@ -27,6 +57,10 @@ export function EnergyResults({ items, days, billed, changes }: { items: Applian
   <details className="refine"><summary>¿Y cuánto es en pesos? ¿Estoy en DAC?</summary><div className="refine-body"><p>No convertimos esta estimación a pesos sin cuotas verificadas para tu tarifa y periodo. Los bloques, temporada, impuestos y otros cargos pueden cambiar el importe.</p><p>Consumir en el bloque excedente no significa estar en DAC. Un solo recibo no determina tu situación: se necesita el historial y las reglas vigentes de CFE.</p><a href="https://app.cfe.mx/Aplicaciones/CCFE/Tarifas/TarifasCRECasa/Tarifas/Tarifa1C.aspx" target="_blank" rel="noreferrer">Consultar tarifa 1C en CFE ↗</a></div></details>
   <p className="estimate-notice"><strong>Antes de sacar conclusiones:</strong> esto es una guía, no una auditoría de CFE. Los escenarios no incluyen automáticamente todos tus aparatos. Para comprobar consumos se requiere medición adecuada. No manipules el medidor, tablero ni cableado; solicita personal calificado si sospechas una falla.</p>
   <p className="helper">Método v1 · octubre de 2026. Potencia × tiempo × cantidad; lavado por cargas y refrigeración por energía diaria. Escenarios generales: 60%–140% del centro; climas: 40%–100% de operación equivalente, centro 65%. Son supuestos exploratorios, no límites de consumo ni intervalos estadísticos. Herramienta independiente, no avalada por CFE.</p>
-  <Button type="button" variant="outline" onClick={() => window.print()}><Printer data-icon="inline-start"/> Imprimir resumen y supuestos</Button>
+  <div className="flex flex-col gap-3 sm:flex-row print:hidden">
+   <Button type="button" onClick={saveSummary}><Download data-icon="inline-start"/> Guardar resumen</Button>
+   <Button type="button" variant="outline" onClick={() => window.print()}><Printer data-icon="inline-start"/> Imprimir resumen y supuestos</Button>
+  </div>
+  <p className="helper print:hidden">El archivo se crea en tu dispositivo y se descarga directamente. No se envía ni se guarda en ningún servidor.</p>
  </div>
 }
