@@ -4,7 +4,7 @@ export function ReceiptGuide() {
   return <aside className="receipt-aside">
     <div className="guide-heading"><span className="icon-tile"><Info size={19} /></span><div><h3>Tu recibo, sin misterio</h3><p>Te ayudamos a encontrar lo importante.</p></div></div>
     <div className="receipt-scene">
-      <div className="sample-receipt" aria-label="Ejemplo ilustrativo: busca Tarifa 1C en la parte superior del recibo">
+      <div className="sample-receipt" aria-label="Ejemplo ilustrativo con Tarifa 1C: busca tu tarifa en la parte superior del recibo">
         <div className="receipt-top"><Zap size={25} /><span>RECIBO DE ENERGÍA<br /><small>Ejemplo ilustrativo · sin validez</small></span></div>
         <div className="receipt-lines"><i /><i /><i /></div>
         <div className="receipt-meta"><span>USO<br /><b>Doméstico</b></span><span className="receipt-highlight">TARIFA<br /><b>1C</b></span><span>MEDIDOR<br /><b>••••••</b></span></div>
@@ -15,7 +15,7 @@ export function ReceiptGuide() {
       </div>
       <div className="receipt-caption"><span className="small-dot" /> Busca «Tarifa» en la parte superior</div>
     </div>
-    <p className="guide-note">El diseño de tu recibo puede variar. Lo importante es que en el campo <strong>Tarifa</strong> aparezca <strong>1C</strong>.</p>
+    <p className="guide-note">El diseño de tu recibo puede variar. Lo importante es que tu <strong>Tarifa</strong> sea doméstica: <strong>1, 1A, 1B, 1C, 1D, 1E, 1F o DAC</strong>. Los nombres y la cantidad de escalones cambian según tu tarifa y la temporada.</p>
     <div className="privacy-note"><ShieldCheck size={22} /><div><strong>Tu información se queda contigo.</strong><p>No subas tu recibo. No necesitamos tu nombre, domicilio ni número de servicio.</p></div></div>
   </aside>
 }
